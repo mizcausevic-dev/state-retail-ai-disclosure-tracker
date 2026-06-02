@@ -1,0 +1,15 @@
+{
+  "name": "state-retail-ai-disclosure-tracker",
+  "version": "0.1.0",
+  "description": "RetailTech state-by-state lifecycle tracker for state attorney-general enforcement, state privacy regulator rules (CA CPPA, CO DOJ), state biometric statutes (BIPA, NYC, WA, TX CUBI), and state pricing-transparency / dark-patterns laws applicable to consumer-facing retail AI decisions.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify": "node src/verify.mjs",
+    "test": "npm run verify"
+  },
+  "dependencies": {
+    "ajv": "^8.17.0",
+    "ajv-formats": "^3.0.1"
+  }
+}

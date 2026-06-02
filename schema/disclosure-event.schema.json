@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mizcausevic-dev/state-retail-ai-disclosure-tracker/blob/main/schema/disclosure-event.schema.json",
+  "title": "State Retail AI Disclosure Lifecycle Event",
+  "description": "A timestamped lifecycle event in a US state's evolving retail / consumer AI regulation — typically a state attorney-general enforcement guidance, a state legislative statute applicable to consumer-facing AI decisions, a state privacy regulator rule (CA CPPA, CO DOJ, etc.), or a state biometric statute. Tracks the per-state regulatory pipeline so retailers + marketplaces + brands + ad-tech vendors can publish Decision Cards that reference the right state regulatory set on any given pricing / recommendation / loyalty / biometric / fraud-screening date.",
+  "type": "object",
+  "required": ["event_id", "state", "timestamp", "lifecycle_state", "citation"],
+  "additionalProperties": false,
+  "properties": {
+    "event_id":         {"type": "string", "minLength": 1},
+    "state":            {"type": "string", "pattern": "^US-[A-Z]{2}$"},
+    "timestamp":        {"type": "string", "format": "date-time"},
+    "lifecycle_state": {
+      "type": "string",
+      "enum": [
+        "proposed",
+        "in-comment-period",
+        "adopted-regulation",
+        "enacted-awaiting-effective",
+        "effective",
+        "amended",
+        "superseded",
+        "sunset",
+        "withdrawn"
+      ]
+    },
+    "regulatory_vehicle": {
+      "type": "string",
+      "enum": [
+        "state-legislative-statute",
+        "state-ag-enforcement-guidance",
+        "state-privacy-regulator-rulemaking",
+        "state-biometric-statute",
+        "state-consumer-protection-rule",
+        "state-pricing-transparency-statute"
+      ]
+    },
+    "citation": {
+      "type": "object",
+      "required": ["short_label", "jurisdictional_uri"],
+      "additionalProperties": false,
+      "properties": {
+        "short_label":          {"type": "string"},
+        "long_title":           {"type": "string"},
+        "jurisdictional_uri":   {"type": "string", "format": "uri"},
+        "session_year":         {"type": "integer", "minimum": 1900, "maximum": 2100}
+      }
+    },
+    "effective_date":   {"type": "string", "format": "date"},
+    "sunset_date":      {"type": "string", "format": "date"},
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "covered_decisions": {
+          "type": "array",
+          "items": {"type": "string", "enum": [
+            "dynamic-pricing",
+            "personalized-pricing",
+            "surge-pricing",
+            "recommendation-ranking",
+            "loyalty-tier-classification",
+            "fraud-screening",
+            "refund-decision",
+            "return-eligibility-determination",
+            "ad-personalization",
+            "audience-segmentation",
+            "biometric-identification",
+            "biometric-age-verification",
+            "automated-customer-service-routing",
+            "bopis-routing",
+            "shopper-profile-inference"
+          ]}
+        },
+        "covered_actors": {
+          "type": "array",
+          "items": {"type": "string", "enum": [
+            "online-retailer",
+            "marketplace-operator",
+            "brick-and-mortar-retailer",
+            "omnichannel-retailer",
+            "ad-tech-vendor",
+            "loyalty-platform-vendor",
+            "recommender-as-a-service-vendor",
+            "pricing-engine-vendor",
+            "biometric-vendor",
+            "data-broker",
+            "third-party-fulfillment",
+            "ai-vendor"
+          ]}
+        },
+        "minimum_annual_revenue": {"type": "integer", "minimum": 0},
+        "covered_geographic_scope": {"type": "string"}
+      }
+    },
+    "obligation_kinds": {
+      "type": "array",
+      "items": {"type": "string", "enum": [
+        "personalized-pricing-disclosure-required",
+        "automated-decisionmaking-opt-out-required",
+        "annual-bias-audit-required",
+        "consumer-notice-of-ai-use-required",
+        "biometric-written-consent-required",
+        "biometric-retention-schedule-required",
+        "biometric-no-profit-sharing-required",
+        "right-to-explanation-required",
+        "right-to-human-review-required",
+        "dark-patterns-prohibition",
+        "deceptive-ai-output-prohibition",
+        "data-broker-registration-required",
+        "minor-targeting-restriction",
+        "do-not-sell-do-not-share-required",
+        "sensitive-personal-info-opt-in-required",
+        "third-party-ai-vendor-due-diligence-required",
+        "ai-system-inventory-required"
+      ]}
+    },
+    "regulator": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "primary_agency_code": {"type": "string", "description": "e.g. 'NY-AG', 'CA-AG', 'CA-CPPA', 'IL-AG', 'TX-AG', 'CO-AG', 'WA-AG'"},
+        "primary_agency_name": {"type": "string"},
+        "primary_agency_uri":  {"type": "string", "format": "uri"},
+        "concurrent_jurisdiction":{"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "supersedes_event_id":    {"type": "string"},
+    "notes":                  {"type": "string"}
+  },
+  "allOf": [
+    {"if": {"properties": {"lifecycle_state": {"const": "effective"}}},  "then": {"required": ["effective_date"]}},
+    {"if": {"properties": {"lifecycle_state": {"const": "sunset"}}},     "then": {"required": ["sunset_date"]}},
+    {"if": {"properties": {"lifecycle_state": {"enum": ["superseded", "amended"]}}}, "then": {"required": ["supersedes_event_id"]}}
+  ]
+}
